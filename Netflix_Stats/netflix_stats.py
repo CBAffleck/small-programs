@@ -1,6 +1,7 @@
 import operator
+from datetime import datetime
 
-filename = 'netflix_all.txt'
+filename = 'netflixinfo.txt'
 
 #Finds nth appearance of element in string
 def find_nth(haystack, needle, n):
@@ -13,11 +14,19 @@ def find_nth(haystack, needle, n):
 #Read from file
 show_dict = {}	#Format: [title: [views, type, total time in minutes]]
 watch_dates = {}	#Format: [date : [show/movie title, view count]]
+dates = []
 with open(filename, 'r') as input_f:
+	lineNumber = 0
 	for line in input_f:
+		if lineNumber == 2:
+			accountName = line.strip('\n')
+		lineNumber += 1
+		if "/" not in line:
+			continue
 		index = line.find("Report a problem")
 		line = line[:index]
 		date = " ".join(line.split()[:1])
+		dates.append(date)
 		show = " ".join(line.split()[1:])
 		if "\"" in show:	#Checks if line is a TV Show
 			if 'Pok\xc3\xa9mon' in line or 'Star Wars' in line:	#These shows have extra ":" in them
@@ -72,6 +81,7 @@ for x in show_dict:
 	if x in duration:
 		show_dict[x][2] = show_dict[x][0] * duration[x]
 
+#Find most watched episodes in one day and the day it occurred on
 views = 0
 top_date = ""
 top_date_watch_time = 0
@@ -81,6 +91,39 @@ for x in watch_dates:
 		views = watch_dates[x][1]
 most_watched_one_day = watch_dates[top_date][0]
 top_date_watch_time = duration[most_watched_one_day] * watch_dates[top_date][1]
+
+noDupeDates = []
+[noDupeDates.append(i) for i in dates if not noDupeDates.count(i)]
+date_ints = [datetime.strptime(d, "%m/%d/%y") for d in noDupeDates]
+print date_ints
+max_consecutive_dates = 0
+max_start_date = None
+max_end_date = None
+startDate = None
+tmp = 0
+prevDate = None
+for d in date_ints:
+	if prevDate == None:
+		prevDate = d
+	elif d - prevDate == -(datetime(2000,1,2,1,1,1) - datetime(2000,1,1,1,1,1)):
+		print "Current date: ", d
+		print "Previous date: ", prevDate
+		tmp += 1
+		if startDate == None:
+			startDate = prevDate
+	else:
+		print d - prevDate
+		if max_consecutive_dates < tmp:
+			max_consecutive_dates = tmp
+			max_start_date = startDate
+			max_end_date = prevDate
+		prevDate = d
+		startDate = None
+		tmp = 0
+print "Most consecutive days of Netflix: ", max_consecutive_dates
+print datetime(2000,1,2,1,1,1) - datetime(2000,1,1,1,1,1)
+print "Start date: ", max_start_date, "End date: ", max_end_date
+
 
 #Finds show that has the most viewing time
 top_show = ""
@@ -100,20 +143,20 @@ def total_time(show_dict):
 		total += show_dict[x][2]
 	return total/60 + float(total%60)/60
 
-print "==Stats=="
-print "Total watch time: %f hours" % (total_time(show_dict))
-print "Most active date: %s -- %d episodes -- %s -- %f hours" % (top_date, views, 
-		most_watched_one_day, top_date_watch_time/60 + float(top_date_watch_time%60)/60)
-print "Show with most watch time: %s -- %d.%d hours" % (top_show, top_min/60, 
-		(float(top_min%60)/60)*100), "\n"
-print "==SHOWS/MOVIES=="
-for key in sorted(show_dict):
-	print "%s - Views: %d, Type: %s, Watch time: %d.%d hours" % (key, show_dict[key][0], 
-			show_dict[key][1], show_dict[key][2]/60, (float(show_dict[key][2]%60)/60)*100)
+# print "==Stats for %s==" % accountName
+# print "Total watch time: %f hours" % (total_time(show_dict))
+# print "Most active date: %s -- %d episodes -- %s -- %f hours" % (top_date, views, 
+# 		most_watched_one_day, top_date_watch_time/60 + float(top_date_watch_time%60)/60)
+# print "Show with most watch time: %s -- %d.%d hours" % (top_show, top_min/60, 
+# 		(float(top_min%60)/60)*100), "\n"
+# print "==SHOWS/MOVIES=="
+# for key in sorted(show_dict):
+# 	print "%s - Views: %d, Type: %s, Watch time: %d.%d hours" % (key, show_dict[key][0], 
+# 			show_dict[key][1], show_dict[key][2]/60, (float(show_dict[key][2]%60)/60)*100)
 
 #Write to output file
 with open('netflix_out.txt', 'w') as output_f:
-	output_f.write("==Stats== \n")
+	output_f.write("==Stats for %s== \n" % accountName)
 	output_f.write("Total watch time: %f hours \n" % (total_time(show_dict)))
 	output_f.write("Most active date: %s -- %d episodes -- %s -- %f hours \n" % (top_date, views, 
 			most_watched_one_day, top_date_watch_time/60 + float(top_date_watch_time%60)/60))

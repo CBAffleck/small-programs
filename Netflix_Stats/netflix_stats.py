@@ -1,7 +1,7 @@
 import operator
 from datetime import datetime
 
-filename = 'netflixinfo.txt'
+filename = raw_input("Type the filename of the file containing your Netflix viewing history: ") + ".txt"
 
 #Finds nth appearance of element in string
 def find_nth(haystack, needle, n):

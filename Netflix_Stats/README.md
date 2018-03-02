@@ -1,4 +1,4 @@
-# Netflix Viewing Stats
+# Netflix Viewing History Statistics
 
 This program allows the user to specify the filename of the text file containing the content they copy and pasted from their Netflix account viewing history. Stats produced from this program include:
 * Total watch time

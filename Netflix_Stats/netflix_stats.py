@@ -92,10 +92,11 @@ for x in watch_dates:
 most_watched_one_day = watch_dates[top_date][0]
 top_date_watch_time = duration[most_watched_one_day] * watch_dates[top_date][1]
 
+#Finds the most consecutive days in which something on Netflix was watched, and returns start and end
+#date as well.
 noDupeDates = []
 [noDupeDates.append(i) for i in dates if not noDupeDates.count(i)]
-date_ints = [datetime.strptime(d, "%m/%d/%y") for d in noDupeDates]
-print date_ints
+date_ints = sorted([datetime.strptime(d, "%m/%d/%y") for d in noDupeDates])
 max_consecutive_dates = 0
 max_start_date = None
 max_end_date = None
@@ -105,14 +106,12 @@ prevDate = None
 for d in date_ints:
 	if prevDate == None:
 		prevDate = d
-	elif d - prevDate == -(datetime(2000,1,2,1,1,1) - datetime(2000,1,1,1,1,1)):
-		print "Current date: ", d
-		print "Previous date: ", prevDate
+	elif d - prevDate == (datetime(2000,1,2,1,1,1) - datetime(2000,1,1,1,1,1)):
 		tmp += 1
+		prevDate = d
 		if startDate == None:
 			startDate = prevDate
 	else:
-		print d - prevDate
 		if max_consecutive_dates < tmp:
 			max_consecutive_dates = tmp
 			max_start_date = startDate
@@ -120,10 +119,6 @@ for d in date_ints:
 		prevDate = d
 		startDate = None
 		tmp = 0
-print "Most consecutive days of Netflix: ", max_consecutive_dates
-print datetime(2000,1,2,1,1,1) - datetime(2000,1,1,1,1,1)
-print "Start date: ", max_start_date, "End date: ", max_end_date
-
 
 #Finds show that has the most viewing time
 top_show = ""
@@ -143,16 +138,19 @@ def total_time(show_dict):
 		total += show_dict[x][2]
 	return total/60 + float(total%60)/60
 
-# print "==Stats for %s==" % accountName
-# print "Total watch time: %f hours" % (total_time(show_dict))
-# print "Most active date: %s -- %d episodes -- %s -- %f hours" % (top_date, views, 
-# 		most_watched_one_day, top_date_watch_time/60 + float(top_date_watch_time%60)/60)
-# print "Show with most watch time: %s -- %d.%d hours" % (top_show, top_min/60, 
-# 		(float(top_min%60)/60)*100), "\n"
-# print "==SHOWS/MOVIES=="
-# for key in sorted(show_dict):
-# 	print "%s - Views: %d, Type: %s, Watch time: %d.%d hours" % (key, show_dict[key][0], 
-# 			show_dict[key][1], show_dict[key][2]/60, (float(show_dict[key][2]%60)/60)*100)
+print "==Stats for %s==" % accountName
+print "Total watch time: %f hours" % (total_time(show_dict))
+print "Most active date: %s -- %d episodes -- %s -- %f hours" % (top_date, views, 
+		most_watched_one_day, top_date_watch_time/60 + float(top_date_watch_time%60)/60)
+print "Show with most watch time: %s -- %d.%d hours" % (top_show, top_min/60, 
+		(float(top_min%60)/60)*100)
+print "Most days in a row of watching something on Netflix: %d days" % (max_consecutive_dates)
+print "Most days in a row of Netflix began on %s and ended on %s" % (max_start_date.strftime('%m/%d/%Y'),
+		max_end_date.strftime('%m/%d/%Y')), "\n"
+print "==SHOWS/MOVIES=="
+for key in sorted(show_dict):
+	print "%s - Views: %d, Type: %s, Watch time: %d.%d hours" % (key, show_dict[key][0], 
+			show_dict[key][1], show_dict[key][2]/60, (float(show_dict[key][2]%60)/60)*100)
 
 #Write to output file
 with open('netflix_out.txt', 'w') as output_f:
@@ -162,11 +160,11 @@ with open('netflix_out.txt', 'w') as output_f:
 			most_watched_one_day, top_date_watch_time/60 + float(top_date_watch_time%60)/60))
 	output_f.write("Show with most watch time: %s -- %d.%d hours \n" % (top_show, top_min/60, 
 			(float(top_min%60)/60)*100))
+	output_f.write("Most days in a row of watching something on Netflix: %d days \n" % (max_consecutive_dates))
+	output_f.write("Most days in a row of Netflix began on %s and ended on %s \n \n" % (max_start_date.strftime('%m/%d/%Y'),
+			max_end_date.strftime('%m/%d/%Y')))
 	output_f.write("==SHOWS/MOVIES== \n")
 	for key in sorted(show_dict):
 		output_f.write("%s - Views: %d, Type: %s, Watch time: %d.%d hours \n" % (key, show_dict[key][0], 
 				show_dict[key][1], show_dict[key][2]/60, (float(show_dict[key][2]%60)/60)*100))
-
-
-
 

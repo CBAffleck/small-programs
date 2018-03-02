@@ -12,7 +12,7 @@ This program allows the user to specify the filename of the text file containing
 
 ## Getting Started
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
+Following these instructions will help you get the program running so you can see your Netflix stats.
 
 ### Prerequisites
 
